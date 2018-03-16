@@ -1,4 +1,4 @@
-package com.memoseed.simpletwitterclient;
+package com.memoseed.simpletwitterclient.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
+import com.memoseed.simpletwitterclient.R;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -33,7 +34,8 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
         if (twitterSession != null) {
-
+            Log.d(TAG,"userId : " + twitterSession.getUserId());
+            startActivity(new Intent(this,UserFollowers_.class));finish();
         }
     }
 

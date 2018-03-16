@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.memoseed.simpletwitterclient.activities.UserFollowers">
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rView"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rlProgress"
+        android:gravity="center"
+        android:visibility="gone">
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:cpv_indeterminate="true"
+            app:cpv_thickness="8dp"
+            app:cpv_animAutostart="true"
+            app:cpv_color="@color/colorPrimary"/>
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>
