@@ -2,6 +2,7 @@ package com.memoseed.simpletwitterclient.activities;
 
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import com.memoseed.simpletwitterclient.R;
 import com.memoseed.simpletwitterclient.adapters.TweetsRVAdapter;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
 import com.memoseed.simpletwitterclient.twitterApi.MyTwitterApiClient;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
@@ -84,12 +86,31 @@ public class FollowerInformation extends AppCompatActivity {
 
     @ViewById
     ImageView imBackground;
+    @Click
+    void imBackground(){
+        if(profileBannerUrl!=null && !profileBannerUrl.isEmpty()){
+            new ImageViewer.Builder(FollowerInformation.this, new String[]{profileBannerUrl})
+                    .setStartPosition(0)
+                    .show();
+        }else{
+            new ImageViewer.Builder(FollowerInformation.this, new String[]{Uri.parse("android.resource://"+R.class.getPackage().getName()+"/" +R.drawable.twitter_cover).toString()})
+                    .setStartPosition(0)
+                    .show();
+        }
+    }
+
     @ViewById
     TextView txtName;
     @ViewById
     TextView txtBio;
     @ViewById
     RoundedImageView imPic;
+    @Click
+    void imPic(){
+        new ImageViewer.Builder(FollowerInformation.this, new String[]{profileImageUrl})
+                .setStartPosition(0)
+                .show();
+    }
 
     @ViewById
     RecyclerView rView;
