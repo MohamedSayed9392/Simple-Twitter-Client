@@ -93,7 +93,7 @@ public class FollowerInformation extends AppCompatActivity {
                     .setStartPosition(0)
                     .show();
         }else{
-            new ImageViewer.Builder(FollowerInformation.this, new String[]{Uri.parse("android.resource://"+R.class.getPackage().getName()+"/" +R.drawable.twitter_cover).toString()})
+            new ImageViewer.Builder(FollowerInformation.this, new String[]{"https://rlhb.lexblogplatformthree.com/wp-content/uploads/sites/111/2016/10/twitter-company-statistics.jpg"})
                     .setStartPosition(0)
                     .show();
         }
@@ -155,48 +155,52 @@ public class FollowerInformation extends AppCompatActivity {
 
     private void getTweetsList() {
         rlProgress.setVisibility(View.VISIBLE);
-        MyTwitterApiClient myTwitterApiClient = new MyTwitterApiClient(twitterSession);
-        myTwitterApiClient.getCustomService().user_timeline(id).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                String result = "";
-                try {
-                    result = response.body().string();
-                    Log.d(TAG, "result : " + result);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    getTweetsTryAgain();
+        if(UTils.isOnline(this)) {
+            MyTwitterApiClient myTwitterApiClient = new MyTwitterApiClient(twitterSession);
+            myTwitterApiClient.getCustomService().user_timeline(id).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    String result = "";
+                    try {
+                        result = response.body().string();
+                        Log.d(TAG, "result : " + result);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        getTweetsTryAgain(getString(R.string.error_try_again));
+                    }
+
+                    try {
+                        JSONArray jsonArray = new JSONArray(result);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject userJSON = jsonArray.getJSONObject(i);
+                            Tweet tweet = new GsonBuilder().create().fromJson(userJSON.toString(), Tweet.class);
+                            listTweets.add(tweet);
+                        }
+
+                        Log.d(TAG, "listTweets size : " + listTweets.size());
+                        tweetsRVAdapter.notifyDataSetChanged();
+                        rlProgress.setVisibility(View.GONE);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        getTweetsTryAgain(getString(R.string.error_try_again));
+                    }
                 }
 
-                        try {
-                            JSONArray jsonArray = new JSONArray(result);
-                            for(int i=0;i<jsonArray.length();i++){
-                                JSONObject userJSON = jsonArray.getJSONObject(i);
-                                Tweet tweet = new GsonBuilder().create().fromJson(userJSON.toString(), Tweet.class);
-                                listTweets.add(tweet);
-                            }
-
-                            Log.d(TAG,"listTweets size : "+listTweets.size());
-                            tweetsRVAdapter.notifyDataSetChanged();
-                            rlProgress.setVisibility(View.GONE);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            getTweetsTryAgain();
-                        }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                t.printStackTrace();
-                getTweetsTryAgain();
-            }
-        });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                    getTweetsTryAgain(getString(R.string.error_try_again));
+                }
+            });
+        }else{
+            getTweetsTryAgain(getString(R.string.no_internet));
+        }
     }
 
-    private void getTweetsTryAgain() {
+    private void getTweetsTryAgain(String message) {
         rlProgress.setVisibility(View.GONE);
-        UTils.show2OptionsDialoge(FollowerInformation.this, getString(R.string.error_try_again), new DialogInterface.OnClickListener() {
+        UTils.show2OptionsDialoge(FollowerInformation.this, message, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 getTweetsList();

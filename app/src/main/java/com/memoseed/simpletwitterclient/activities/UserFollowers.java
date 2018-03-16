@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import com.google.gson.GsonBuilder;
 import com.memoseed.simpletwitterclient.R;
 import com.memoseed.simpletwitterclient.adapters.UserFollowersRVAdapter;
+import com.memoseed.simpletwitterclient.generalUtils.CacheHelper;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
 import com.memoseed.simpletwitterclient.twitterApi.MyTwitterApiClient;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -67,58 +68,68 @@ public class UserFollowers extends AppCompatActivity {
     private void getFollowerList()
     {
         rlProgress.setVisibility(View.VISIBLE);
-        Call<User> userCall= TwitterCore.getInstance().getApiClient().getAccountService().verifyCredentials(true,false,false);
-        userCall.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                MyTwitterApiClient myTwitterApiClient = new MyTwitterApiClient(twitterSession);
-                myTwitterApiClient.getCustomService().list(response.body().id).enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        String result = "";
-                        try {
-                            result = response.body().string();
-                            Log.d(TAG,"result : "+result);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            getFollowersTryAgain();
-                        }
-
-                        try {
-                            JSONObject jsonObject = new JSONObject(result);
-                            JSONArray jsonArray = jsonObject.getJSONArray("users");
-                            for(int i=0;i<jsonArray.length();i++){
-                                JSONObject userJSON = jsonArray.getJSONObject(i);
-                                User user = new GsonBuilder().create().fromJson(userJSON.toString(), User.class);
-                                listUserFollowers.add(user);
+        if(UTils.isOnline(this)) {
+            Call<User> userCall = TwitterCore.getInstance().getApiClient().getAccountService().verifyCredentials(true, false, false);
+            userCall.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    MyTwitterApiClient myTwitterApiClient = new MyTwitterApiClient(twitterSession);
+                    myTwitterApiClient.getCustomService().list(response.body().id).enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            String result = "";
+                            try {
+                                result = response.body().string();
+                                Log.d(TAG, "result : " + result);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                getFollowersTryAgain();
                             }
 
-                            Log.d(TAG,"listUserFollowers size : "+listUserFollowers.size());
-                            userFollowersRVAdapter.notifyDataSetChanged();
-                            rlProgress.setVisibility(View.GONE);
+                            try {
+                                listUserFollowers.clear();
+                                JSONObject jsonObject = new JSONObject(result);
+                                JSONArray jsonArray = jsonObject.getJSONArray("users");
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject userJSON = jsonArray.getJSONObject(i);
+                                    User user = new GsonBuilder().create().fromJson(userJSON.toString(), User.class);
+                                    listUserFollowers.add(user);
+                                }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                                Log.d(TAG, "listUserFollowers size : " + listUserFollowers.size());
+                                CacheHelper.setFollowers(UserFollowers.this,listUserFollowers);
+                                userFollowersRVAdapter.notifyDataSetChanged();
+                                rlProgress.setVisibility(View.GONE);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                getFollowersTryAgain();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            t.printStackTrace();
                             getFollowersTryAgain();
                         }
 
-                    }
+                    });
+                }
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        t.printStackTrace();
-                        getFollowersTryAgain();
-                    }
-
-                });
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                t.printStackTrace();
-                getFollowersTryAgain();
-            }
-        });
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+                    t.printStackTrace();
+                    getFollowersTryAgain();
+                }
+            });
+        }else{
+            listUserFollowers.clear();
+            listUserFollowers.addAll(CacheHelper.getFollowers(this));
+            Log.d(TAG, "listUserFollowers size : " + listUserFollowers.size());
+            userFollowersRVAdapter.notifyDataSetChanged();
+            rlProgress.setVisibility(View.GONE);
+        }
     }
 
     private void getFollowersTryAgain(){
