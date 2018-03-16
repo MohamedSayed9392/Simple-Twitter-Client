@@ -1,0 +1,40 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.memoseed.simpletwitterclient"
+        minSdkVersion 16
+        targetSdkVersion 26
+        versionCode 100
+        versionName "1.0.0"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+
+    //android annotation for easy dependencies injection
+    annotationProcessor "org.androidannotations:androidannotations:4.4.0"
+    compile "org.androidannotations:androidannotations-api:4.4.0"
+    //round layouts used to make the login button
+    implementation 'com.flyco.roundview:FlycoRoundView_Lib:1.1.4@aar'
+    //circular progress bar that easy to change its colors most sdk versions
+    implementation 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
+    //twitter sdk for android
+    compile('com.twitter.sdk.android:twitter:3.2.0@aar'){
+        transitive = true
+    }
+}
