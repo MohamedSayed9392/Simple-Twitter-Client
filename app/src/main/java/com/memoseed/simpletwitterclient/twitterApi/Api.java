@@ -12,4 +12,7 @@ import retrofit2.http.Query;
 public interface Api {
     @GET("/1.1/followers/list.json?count=200")
     Call<ResponseBody> list(@Query("user_id") long id);
+
+    @GET("/1.1/statuses/user_timeline.json?count=10")
+    Call<ResponseBody> user_timeline(@Query("user_id") long id);
 }

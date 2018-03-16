@@ -20,6 +20,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.memoseed.simpletwitterclient.R;
+import com.memoseed.simpletwitterclient.activities.FollowerInformation;
+import com.memoseed.simpletwitterclient.activities.FollowerInformation_;
 import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
@@ -110,7 +112,12 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
         holder.linItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, user.name);
+               context.startActivity(new Intent(context, FollowerInformation_.class)
+                       .putExtra("name",user.name)
+                       .putExtra("description",user.description)
+                       .putExtra("profileImageUrl",user.profileImageUrl)
+                       .putExtra("profileBannerUrl",user.profileBannerUrl)
+                       .putExtra("id",user.id));
             }
         });
 

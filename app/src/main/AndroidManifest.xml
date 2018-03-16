@@ -18,12 +18,14 @@
         <activity android:name=".activities.Login_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.UserFollowers_" />
-        <activity android:name=".activities.FollowerInformation"></activity>
+        <activity android:name=".activities.UserFollowers_"
+            android:label="Followers"/>
+        <activity android:name=".activities.FollowerInformation_"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activities.UserFollowers_"></activity>
     </application>
 
 </manifest>
