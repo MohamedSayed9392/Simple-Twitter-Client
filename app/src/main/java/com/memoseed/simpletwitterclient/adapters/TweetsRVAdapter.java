@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,10 @@ import com.bumptech.glide.request.target.Target;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.memoseed.simpletwitterclient.R;
 import com.memoseed.simpletwitterclient.activities.FollowerInformation_;
+import com.memoseed.simpletwitterclient.generalUtils.TWUtils;
 import com.twitter.sdk.android.core.models.Tweet;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,8 @@ public class TweetsRVAdapter extends RecyclerView.Adapter<TweetsRVAdapter.ViewHo
 
     public List<Tweet> listTweets = new ArrayList<>();
     Context context;
+
+    SimpleDateFormat format = new SimpleDateFormat("hh:mm aaa, dd MMM yy");
 
     String TAG = getClass().getSimpleName();
 
@@ -85,8 +90,14 @@ public class TweetsRVAdapter extends RecyclerView.Adapter<TweetsRVAdapter.ViewHo
             holder.imLine.setVisibility(View.VISIBLE);
         }
 
+        try {
+            holder.txtDate.setText(format.format(TWUtils.parseTwitterUTC(tweet.createdAt)));
+        } catch (ParseException e) {
+            holder.txtDate.setText(tweet.createdAt);
+            e.printStackTrace();
+        }
+
         holder.txtTweet.setText(tweet.text);
-        holder.txtDate.setText(tweet.createdAt);
 
     }
 
