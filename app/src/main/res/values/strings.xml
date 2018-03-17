@@ -19,4 +19,5 @@
     <string name="logout">Logout</string>
     <string name="change_language">Change Language</string>
     <string name="followers">Followers</string>
+    <string name="offline">Offline</string>
 </resources>

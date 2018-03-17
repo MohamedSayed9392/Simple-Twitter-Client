@@ -22,6 +22,7 @@ import com.memoseed.simpletwitterclient.TWParameters;
 import com.memoseed.simpletwitterclient.adapters.UserFollowersRVAdapter;
 import com.memoseed.simpletwitterclient.generalUtils.CacheHelper;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
+import com.memoseed.simpletwitterclient.interfaces.OnBottomReachedListener;
 import com.memoseed.simpletwitterclient.twitterApi.MyTwitterApiClient;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -73,21 +74,22 @@ public class UserFollowers extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id==R.id.changeLanguage){
+        if (id == R.id.changeLanguage) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.change_language));
             builder.setItems(getResources().getStringArray(R.array.languages), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    p.setInt(which,"language");
+                    p.setInt(which, "language");
                     dialog.cancel();
                     UTils.recreateActivityCompat(UserFollowers.this);
                 }
             });
             builder.show();
-        }else if(id==R.id.logout){
+        } else if (id == R.id.logout) {
             TwitterCore.getInstance().getSessionManager().clearActiveSession();
-            startActivity(new Intent(this,Login_.class));finish();
+            startActivity(new Intent(this, Login_.class));
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -101,12 +103,13 @@ public class UserFollowers extends AppCompatActivity {
     RelativeLayout rlProgress;
 
     @AfterViews
-    void afterViews(){
-        userFollowersRVAdapter = new UserFollowersRVAdapter(listUserFollowers,this);
+    void afterViews() {
+        setTitle(getString(R.string.followers));
+        userFollowersRVAdapter = new UserFollowersRVAdapter(listUserFollowers, this);
         if (UTils.getScreenOrientation(this) == Configuration.ORIENTATION_PORTRAIT) {
             rView.setLayoutManager(new LinearLayoutManager(this));
-        }else if (UTils.getScreenOrientation(this) == Configuration.ORIENTATION_LANDSCAPE) {
-            rView.setLayoutManager(new GridLayoutManager(this,2));
+        } else if (UTils.getScreenOrientation(this) == Configuration.ORIENTATION_LANDSCAPE) {
+            rView.setLayoutManager(new GridLayoutManager(this, 2));
         }
         rView.setAdapter(userFollowersRVAdapter);
 
@@ -115,34 +118,47 @@ public class UserFollowers extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                cursor = -1;
+                listUserFollowers.clear();
+                userFollowersRVAdapter.notifyDataSetChanged();
+
                 getFollowerList();
+            }
+        });
+
+        userFollowersRVAdapter.setOnBottomReachedListener(new OnBottomReachedListener() {
+            @Override
+            public void onBottomReached(int position) {
+                if (!isGetFollowerListRunning && position != 0 && cursor!=0) {
+                    bottomPosition = position;
+                    getFollowerList();
+                }
+
             }
         });
     }
 
-    private void getFollowerList()
-    {
+    int bottomPosition;
+    long cursor = -1;
+    private boolean isGetFollowerListRunning = false;
+
+    private void getFollowerList() {
+        isGetFollowerListRunning = true;
         rlProgress.setVisibility(View.VISIBLE);
-        if(UTils.isOnline(this)) {
-            Call<User> userCall = TwitterCore.getInstance().getApiClient().getAccountService().verifyCredentials(true, false, false);
+        if (UTils.isOnline(this)) {
+            Call<User> userCall = TwitterCore.getInstance().getApiClient().getAccountService().verifyCredentials(false, true, false);
             userCall.enqueue(new Callback<User>() {
                 @Override
                 public void onResponse(Call<User> call, Response<User> response) {
                     MyTwitterApiClient myTwitterApiClient = new MyTwitterApiClient(twitterSession);
-                    myTwitterApiClient.getCustomService().list(response.body().id).enqueue(new Callback<ResponseBody>() {
+                    myTwitterApiClient.getCustomService().list(response.body().id,cursor).enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                             String result = "";
                             try {
                                 result = response.body().string();
                                 Log.d(TAG, "result : " + result);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                getFollowersTryAgain();
-                            }
 
-                            try {
-                                listUserFollowers.clear();
                                 JSONObject jsonObject = new JSONObject(result);
                                 JSONArray jsonArray = jsonObject.getJSONArray("users");
                                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -152,22 +168,32 @@ public class UserFollowers extends AppCompatActivity {
                                 }
 
                                 Log.d(TAG, "listUserFollowers size : " + listUserFollowers.size());
-                                CacheHelper.setFollowers(UserFollowers.this,listUserFollowers);
+                                CacheHelper.setFollowers(UserFollowers.this, listUserFollowers);
                                 userFollowersRVAdapter.notifyDataSetChanged();
+                                try{rView.smoothScrollToPosition(bottomPosition+1);}catch (IndexOutOfBoundsException e){e.printStackTrace();}
                                 rlProgress.setVisibility(View.GONE);
                                 swipeRefreshLayout.setRefreshing(false);
 
+                                cursor = jsonObject.getLong("next_cursor");
+                                Log.d(TAG,"next_cursor : "+cursor);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                getFollowersTryAgain(getString(R.string.error_try_again));
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                                getFollowersTryAgain(getString(R.string.error_try_again));
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                getFollowersTryAgain();
+                                getFollowersTryAgain(getString(R.string.error_try_again));
                             }
 
+                            isGetFollowerListRunning = false;
                         }
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
                             t.printStackTrace();
-                            getFollowersTryAgain();
+                            getFollowersTryAgain(getString(R.string.error_try_again));
                         }
 
                     });
@@ -176,23 +202,21 @@ public class UserFollowers extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<User> call, Throwable t) {
                     t.printStackTrace();
-                    getFollowersTryAgain();
+                    getFollowersTryAgain(getString(R.string.error_try_again));
                 }
             });
-        }else{
-            listUserFollowers.clear();
-            listUserFollowers.addAll(CacheHelper.getFollowers(this));
-            Log.d(TAG, "listUserFollowers size : " + listUserFollowers.size());
-            userFollowersRVAdapter.notifyDataSetChanged();
-            rlProgress.setVisibility(View.GONE);
-            swipeRefreshLayout.setRefreshing(false);
+        } else {
+            if (cursor == -1) getFollowersOffline();
+            else getFollowersTryAgain(getString(R.string.no_internet));
+
         }
     }
 
-    private void getFollowersTryAgain(){
+    private void getFollowersTryAgain(String message) {
         rlProgress.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
-        UTils.show2OptionsDialoge(UserFollowers.this, getString(R.string.error_try_again), new DialogInterface.OnClickListener() {
+        isGetFollowerListRunning = false;
+        UTils.show2OptionsDialoge(UserFollowers.this, message, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 getFollowerList();
@@ -200,8 +224,20 @@ public class UserFollowers extends AppCompatActivity {
         }, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                finish();
+                if(cursor == -1) getFollowersOffline();
+                dialogInterface.cancel();
             }
-        },getString(R.string.try_again),getString(R.string.cancel));
+        }, getString(R.string.try_again), getString(R.string.offline));
+    }
+
+    private void getFollowersOffline(){
+        cursor = 0;
+        listUserFollowers.clear();
+        listUserFollowers.addAll(CacheHelper.getFollowers(this));
+        Log.d(TAG, "listUserFollowers size : " + listUserFollowers.size());
+        userFollowersRVAdapter.notifyDataSetChanged();
+        rlProgress.setVisibility(View.GONE);
+        swipeRefreshLayout.setRefreshing(false);
+        isGetFollowerListRunning = false;
     }
 }

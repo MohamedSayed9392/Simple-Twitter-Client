@@ -22,6 +22,7 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.memoseed.simpletwitterclient.R;
 import com.memoseed.simpletwitterclient.activities.FollowerInformation;
 import com.memoseed.simpletwitterclient.activities.FollowerInformation_;
+import com.memoseed.simpletwitterclient.interfaces.OnBottomReachedListener;
 import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
 
     public List<User> listUsers = new ArrayList<>();
     Context context;
+    OnBottomReachedListener onBottomReachedListener;
 
     String TAG = getClass().getSimpleName();
 
@@ -60,6 +62,10 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
         this.context = context;
     }
 
+    public void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener){
+        this.onBottomReachedListener = onBottomReachedListener;
+    }
+
     @Override
     public ViewHolderItem onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list_user_followers, parent, false);
@@ -84,10 +90,15 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
 
     @Override
     public void onBindViewHolder(ViewHolderItem holder, int position) {
+
+        if (position == listUsers.size() - 1){
+            onBottomReachedListener.onBottomReached(position);
+        }
+
         User user = listUsers.get(position);
 
         holder.imLine.setVisibility(View.VISIBLE);
-        Glide.with(context).load(user.profileImageUrl).listener(new RequestListener<Drawable>() {
+        Glide.with(context).load(user.profileImageUrl.replace("_normal","")).listener(new RequestListener<Drawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                 Glide.with(context).load(R.drawable.avatar).into(holder.imPic);
@@ -112,6 +123,7 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
             @Override
             public void onClick(View v) {
                context.startActivity(new Intent(context, FollowerInformation_.class)
+                       .putExtra("user",user)
                        .putExtra("name",user.name)
                        .putExtra("description",user.description)
                        .putExtra("profileImageUrl",user.profileImageUrl)

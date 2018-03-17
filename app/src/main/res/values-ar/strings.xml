@@ -8,4 +8,5 @@
     <string name="logout">تسجيل خروج</string>
     <string name="change_language">تغيير اللغة</string>
     <string name="followers">المتابعون</string>
+    <string name="offline">اوفلاين</string>
 </resources>

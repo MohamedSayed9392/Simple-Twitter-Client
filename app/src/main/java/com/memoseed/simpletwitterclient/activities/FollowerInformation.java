@@ -31,6 +31,7 @@ import com.stfalcon.frescoimageviewer.ImageViewer;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.core.models.User;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -58,8 +59,7 @@ public class FollowerInformation extends AppCompatActivity {
 
     private TwitterSession twitterSession;
 
-    String name, description, profileImageUrl, profileBannerUrl;
-    long id;
+    User user;
 
     List<Tweet> listTweets = new ArrayList<>();
     TweetsRVAdapter tweetsRVAdapter;
@@ -71,11 +71,7 @@ public class FollowerInformation extends AppCompatActivity {
         UTils.changeLocale(this, getResources().getStringArray(R.array.languages_tag)[p.getInt("language", 0)]);
         twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
         try {
-            id = getIntent().getExtras().getLong("id");
-            name = getIntent().getExtras().getString("name");
-            description = getIntent().getExtras().getString("description");
-            profileImageUrl = getIntent().getExtras().getString("profileImageUrl");
-            profileBannerUrl = getIntent().getExtras().getString("profileBannerUrl");
+            user = (User) getIntent().getExtras().getSerializable("user");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,8 +89,11 @@ public class FollowerInformation extends AppCompatActivity {
     ImageView imBackground;
     @Click
     void imBackground(){
-        if(profileBannerUrl!=null && !profileBannerUrl.isEmpty()){
-            new ImageViewer.Builder(FollowerInformation.this, new String[]{profileBannerUrl})
+        if(user.profileBannerUrl!=null && !user.profileBannerUrl.isEmpty()){
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(user.profileBannerUrl);
+            stringBuilder.append("/1500x500");
+            new ImageViewer.Builder(FollowerInformation.this, new String[]{stringBuilder.toString()})
                     .setStartPosition(0)
                     .show();
         }else{
@@ -112,7 +111,7 @@ public class FollowerInformation extends AppCompatActivity {
     RoundedImageView imPic;
     @Click
     void imPic(){
-        new ImageViewer.Builder(FollowerInformation.this, new String[]{profileImageUrl})
+        new ImageViewer.Builder(FollowerInformation.this, new String[]{user.profileImageUrl.replace("_normal","")})
                 .setStartPosition(0)
                 .show();
     }
@@ -127,16 +126,16 @@ public class FollowerInformation extends AppCompatActivity {
     void afterViews() {
         setSupportActionBar(toolbar);
 
-        if(profileBannerUrl!=null && !profileBannerUrl.isEmpty()){
-            Glide.with(this).load(profileBannerUrl).into(imBackground);
+        if(user.profileBannerUrl!=null && !user.profileBannerUrl.isEmpty()){
+            Glide.with(this).load(user.profileBannerUrl).into(imBackground);
         }else{
             Glide.with(this).load(R.drawable.twitter_cover).into(imBackground);
         }
 
-        if (description != null && !description.isEmpty()) txtBio.setText(description);
+        if (user.description != null && !user.description.isEmpty()) txtBio.setText(user.description);
         else txtBio.setVisibility(View.GONE);
 
-        Glide.with(this).load(profileImageUrl).listener(new RequestListener<Drawable>() {
+        Glide.with(this).load(user.profileImageUrl.replace("_normal","")).listener(new RequestListener<Drawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                 Glide.with(FollowerInformation.this).load(R.drawable.avatar).into(imPic);
@@ -149,7 +148,7 @@ public class FollowerInformation extends AppCompatActivity {
                 return false;
             }
         }).into(imPic);
-        txtName.setText(name);
+        txtName.setText(user.name);
 
         tweetsRVAdapter = new TweetsRVAdapter(listTweets,this);
         rView.setLayoutManager(new LinearLayoutManager(this));
@@ -162,7 +161,7 @@ public class FollowerInformation extends AppCompatActivity {
         rlProgress.setVisibility(View.VISIBLE);
         if(UTils.isOnline(this)) {
             MyTwitterApiClient myTwitterApiClient = new MyTwitterApiClient(twitterSession);
-            myTwitterApiClient.getCustomService().user_timeline(id).enqueue(new Callback<ResponseBody>() {
+            myTwitterApiClient.getCustomService().user_timeline(user.id).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     String result = "";
