@@ -49,6 +49,6 @@ dependencies {
     //round image view for rounding user pictures
     implementation 'com.makeramen:roundedimageview:2.3.0'
     //full screen imageview with zoom
-    compile 'com.github.stfalcon:frescoimageviewer:0.4.1'
-    compile 'com.facebook.fresco:fresco:0.12.0'
+    implementation 'com.github.stfalcon:frescoimageviewer:0.4.1'
+    implementation 'com.facebook.fresco:fresco:0.12.0'
 }
