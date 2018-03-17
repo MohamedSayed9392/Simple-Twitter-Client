@@ -1,8 +1,22 @@
 <resources>
     <string name="app_name">Simple Twitter Client</string>
+
+    <string-array name="languages_tag" translatable="false">
+        <item>en</item>
+        <item>ar</item>
+    </string-array>
+
+    <string-array name="languages" translatable="false">
+        <item>English</item>
+        <item>العربية</item>
+    </string-array>
+
     <string name="login_with_twitter">Login with Twitter</string>
     <string name="error_try_again">Error, Please try again</string>
     <string name="no_internet">No Internet Connection</string>
     <string name="try_again">Try Again</string>
     <string name="cancel">Cancel</string>
+    <string name="logout">Logout</string>
+    <string name="change_language">Change Language</string>
+    <string name="followers">Followers</string>
 </resources>

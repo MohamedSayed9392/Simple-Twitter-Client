@@ -23,6 +23,7 @@ import com.bumptech.glide.request.target.Target;
 import com.google.gson.GsonBuilder;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.memoseed.simpletwitterclient.R;
+import com.memoseed.simpletwitterclient.TWParameters;
 import com.memoseed.simpletwitterclient.adapters.TweetsRVAdapter;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
 import com.memoseed.simpletwitterclient.twitterApi.MyTwitterApiClient;
@@ -53,6 +54,8 @@ public class FollowerInformation extends AppCompatActivity {
 
     String TAG = getClass().getSimpleName();
 
+    TWParameters p;
+
     private TwitterSession twitterSession;
 
     String name, description, profileImageUrl, profileBannerUrl;
@@ -64,6 +67,8 @@ public class FollowerInformation extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        p = new TWParameters(this);
+        UTils.changeLocale(this, getResources().getStringArray(R.array.languages_tag)[p.getInt("language", 0)]);
         twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
         try {
             id = getIntent().getExtras().getLong("id");

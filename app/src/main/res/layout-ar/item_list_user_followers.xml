@@ -17,32 +17,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
             android:gravity="left"
             android:orientation="vertical">
 
             <com.memoseed.simpletwitterclient.customViews.TextViewCustomFont
-                android:id="@+id/txtTweet"
+                android:id="@+id/txtName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoLink="web"
-                android:gravity="left"
+                android:gravity="right"
                 android:text="Name"
                 android:textColor="@android:color/black"
-                android:textColorLink="@color/colorPrimaryDark"
                 android:textSize="15sp"
                 app:fontName="@string/font_cocon_next_regular" />
 
             <com.memoseed.simpletwitterclient.customViews.TextViewCustomFont
-                android:id="@+id/txtDate"
+                android:id="@+id/txtBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="Bio"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@android:color/black"
                 android:textSize="14sp"
                 app:fontName="@string/font_cocon_next_regular" />
         </LinearLayout>
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/imPic"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/avatar"
+            app:riv_corner_radius="30dp" />
+
     </LinearLayout>
 
     <ImageView

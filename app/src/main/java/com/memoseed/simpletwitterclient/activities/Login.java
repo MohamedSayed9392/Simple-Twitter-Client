@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.memoseed.simpletwitterclient.R;
+import com.memoseed.simpletwitterclient.TWParameters;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -26,12 +27,16 @@ public class Login extends AppCompatActivity {
 
     String TAG = getClass().getSimpleName();
 
+    TWParameters p;
+
     private TwitterAuthClient twitterAuthClient;
     private TwitterSession twitterSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        p = new TWParameters(this);
+        UTils.changeLocale(this, getResources().getStringArray(R.array.languages_tag)[p.getInt("language", 0)]);
         twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
         if (twitterSession != null) {
             Log.d(TAG,"userId : " + twitterSession.getUserId());
@@ -51,6 +56,7 @@ public class Login extends AppCompatActivity {
                 @Override
                 public void success(Result<TwitterSession> twitterSessionResult) {
                     Log.d(TAG, "twitterSessionResult : " + twitterSessionResult.data.getUserName());
+                    startActivity(new Intent(Login.this,UserFollowers_.class));finish();
                 }
 
                 @Override

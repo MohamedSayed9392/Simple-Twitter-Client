@@ -1,24 +1,29 @@
 package com.memoseed.simpletwitterclient.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.google.gson.GsonBuilder;
 import com.memoseed.simpletwitterclient.R;
+import com.memoseed.simpletwitterclient.TWParameters;
 import com.memoseed.simpletwitterclient.adapters.UserFollowersRVAdapter;
 import com.memoseed.simpletwitterclient.generalUtils.CacheHelper;
 import com.memoseed.simpletwitterclient.generalUtils.UTils;
 import com.memoseed.simpletwitterclient.twitterApi.MyTwitterApiClient;
+import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.User;
@@ -44,6 +49,8 @@ public class UserFollowers extends AppCompatActivity {
 
     String TAG = getClass().getSimpleName();
 
+    TWParameters p;
+
     private TwitterSession twitterSession;
 
     UserFollowersRVAdapter userFollowersRVAdapter;
@@ -52,12 +59,38 @@ public class UserFollowers extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        p = new TWParameters(this);
+        UTils.changeLocale(this, getResources().getStringArray(R.array.languages_tag)[p.getInt("language", 0)]);
         twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id==R.id.changeLanguage){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.change_language));
+            builder.setItems(getResources().getStringArray(R.array.languages), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    p.setInt(which,"language");
+                    dialog.cancel();
+                    UTils.recreateActivityCompat(UserFollowers.this);
+                }
+            });
+            builder.show();
+        }else if(id==R.id.logout){
+            TwitterCore.getInstance().getSessionManager().clearActiveSession();
+            startActivity(new Intent(this,Login_.class));finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @ViewById

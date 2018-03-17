@@ -7,9 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
+import android.os.LocaleList;
 import android.view.Display;
+
+import java.util.Locale;
 
 /**
  * Created by Mohamed Sayed on 10/31/2016.
@@ -48,6 +53,38 @@ public class UTils {
             }
         }
         return orientation;
+    }
+
+
+    public static void changeLocale(Context activity, String language) {
+        final Resources res = activity.getResources();
+        final Configuration conf = res.getConfiguration();
+        if (language == null || language.length() == 0) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                conf.setLocales(new LocaleList(Locale.getDefault()));
+            }else{
+                conf.locale = Locale.getDefault();
+            }
+        } else {
+            final int idx = language.indexOf('-');
+            if (idx != -1) {
+                final String[] split = language.split("-");
+
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    conf.setLocales(new LocaleList(new Locale(split[0], split[1].substring(1))));
+                }else{
+                    conf.locale = new Locale(split[0], split[1].substring(1));
+                }
+            } else {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    conf.setLocales(new LocaleList(new Locale(language)));
+                }else{
+                    conf.locale = new Locale(language);
+                }
+
+            }
+        }
+        res.updateConfiguration(conf, null);
     }
 
     public static final void recreateActivityCompat(final Activity a) {

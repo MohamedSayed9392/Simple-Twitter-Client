@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.memoseed.simpletwitterclient.activities.Login">
+
+    <com.flyco.roundview.RoundLinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:id="@+id/linLogin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        app:rv_backgroundColor="@color/colorPrimary"
+        app:rv_backgroundPressColor="@color/colorPrimaryDark"
+        app:rv_isRippleEnable="false"
+        app:rv_cornerRadius="7dp">
+
+        <com.memoseed.simpletwitterclient.customViews.TextViewCustomFont
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_with_twitter"
+            android:textColor="@android:color/white"
+            app:fontName="@string/font_cocon_next_regular" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/ic_twitter_bird_logo" />
+
+    </com.flyco.roundview.RoundLinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/rlProgress"
+        app:layout_constraintTop_toBottomOf="@id/linLogin"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/pBar"
+            android:visibility="gone"
+            app:cpv_animAutostart="true"
+            app:cpv_thickness="5dp"
+            app:cpv_color="@color/colorPrimary"
+            app:cpv_indeterminate="true"/>
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

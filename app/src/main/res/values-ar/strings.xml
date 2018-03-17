@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Simple Twitter Client</string>
+    <string name="login_with_twitter">تسجيل الدخول بتويتر</string>
+    <string name="error_try_again">حطأ، حاول مرة أخرى</string>
+    <string name="no_internet">لا يوجد اتصال بالإنترنت</string>
+    <string name="try_again">حاول مرة أخرى</string>
+    <string name="cancel">إلغاء الأمر</string>
+    <string name="logout">تسجيل خروج</string>
+    <string name="change_language">تغيير اللغة</string>
+    <string name="followers">المتابعون</string>
+</resources>
