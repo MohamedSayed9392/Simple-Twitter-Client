@@ -85,11 +85,8 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
     @Override
     public void onBindViewHolder(ViewHolderItem holder, int position) {
         User user = listUsers.get(position);
-        if (position == listUsers.size()-1) {
-            holder.imLine.setVisibility(View.GONE);
-        } else {
-            holder.imLine.setVisibility(View.VISIBLE);
-        }
+
+        holder.imLine.setVisibility(View.VISIBLE);
         Glide.with(context).load(user.profileImageUrl).listener(new RequestListener<Drawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -105,8 +102,10 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
         }).into(holder.imPic);
         holder.txtName.setText(user.name);
 
-        if (user.description != null && !user.description.isEmpty())
+        if (user.description != null && !user.description.isEmpty()) {
+            holder.txtBio.setVisibility(View.VISIBLE);
             holder.txtBio.setText(user.description);
+        }
         else holder.txtBio.setVisibility(View.GONE);
 
         holder.linItem.setOnClickListener(new View.OnClickListener() {
@@ -126,10 +125,5 @@ public class UserFollowersRVAdapter extends RecyclerView.Adapter<UserFollowersRV
     @Override
     public int getItemCount() {
         return listUsers.size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
     }
 }

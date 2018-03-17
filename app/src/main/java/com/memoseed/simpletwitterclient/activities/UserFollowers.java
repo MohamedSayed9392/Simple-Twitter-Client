@@ -1,10 +1,14 @@
 package com.memoseed.simpletwitterclient.activities;
 
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -51,6 +55,13 @@ public class UserFollowers extends AppCompatActivity {
         twitterSession = TwitterCore.getInstance().getSessionManager().getActiveSession();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @ViewById
+    SwipeRefreshLayout swipeRefreshLayout;
     @ViewById
     RecyclerView rView;
     @ViewById
@@ -59,10 +70,21 @@ public class UserFollowers extends AppCompatActivity {
     @AfterViews
     void afterViews(){
         userFollowersRVAdapter = new UserFollowersRVAdapter(listUserFollowers,this);
-        rView.setLayoutManager(new LinearLayoutManager(this));
+        if (UTils.getScreenOrientation(this) == Configuration.ORIENTATION_PORTRAIT) {
+            rView.setLayoutManager(new LinearLayoutManager(this));
+        }else if (UTils.getScreenOrientation(this) == Configuration.ORIENTATION_LANDSCAPE) {
+            rView.setLayoutManager(new GridLayoutManager(this,2));
+        }
         rView.setAdapter(userFollowersRVAdapter);
 
         getFollowerList();
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getFollowerList();
+            }
+        });
     }
 
     private void getFollowerList()
@@ -100,6 +122,7 @@ public class UserFollowers extends AppCompatActivity {
                                 CacheHelper.setFollowers(UserFollowers.this,listUserFollowers);
                                 userFollowersRVAdapter.notifyDataSetChanged();
                                 rlProgress.setVisibility(View.GONE);
+                                swipeRefreshLayout.setRefreshing(false);
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -129,11 +152,13 @@ public class UserFollowers extends AppCompatActivity {
             Log.d(TAG, "listUserFollowers size : " + listUserFollowers.size());
             userFollowersRVAdapter.notifyDataSetChanged();
             rlProgress.setVisibility(View.GONE);
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
     private void getFollowersTryAgain(){
         rlProgress.setVisibility(View.GONE);
+        swipeRefreshLayout.setRefreshing(false);
         UTils.show2OptionsDialoge(UserFollowers.this, getString(R.string.error_try_again), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

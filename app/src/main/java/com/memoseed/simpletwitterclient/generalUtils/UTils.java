@@ -6,8 +6,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.view.Display;
 
 /**
  * Created by Mohamed Sayed on 10/31/2016.
@@ -31,6 +33,22 @@ public class UTils {
         return connected;
     }
 
+
+    public static int getScreenOrientation(Activity activity)
+    {
+        Display getOrient = activity.getWindowManager().getDefaultDisplay();
+        int orientation;
+        if(getOrient.getWidth()==getOrient.getHeight()){
+            orientation = Configuration.ORIENTATION_SQUARE;
+        } else{
+            if(getOrient.getWidth() < getOrient.getHeight()){
+                orientation = Configuration.ORIENTATION_PORTRAIT;
+            }else {
+                orientation = Configuration.ORIENTATION_LANDSCAPE;
+            }
+        }
+        return orientation;
+    }
 
     public static final void recreateActivityCompat(final Activity a) {
 
